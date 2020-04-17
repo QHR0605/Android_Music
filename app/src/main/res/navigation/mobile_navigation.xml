@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.czk.music.ui.home.HomeFragment"
+        android:label="@string/menu_home_music"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_HomeFragment_to_HomeSecondFragment"
+            app:destination="@id/nav_theme" />
+        <action
+            android:id="@+id/action_HomeFragment_to_SongListFragment"
+            app:destination="@id/nav_song_list" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_history_song"
+            app:destination="@id/nav_history_song" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_like_song"
+            app:destination="@id/nav_like_song" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/nav_song_list"
+        android:name="com.czk.music.ui.SongListFragment"
+        android:label="歌单详情"
+        tools:layout="@layout/fragment_song_list">
+    </fragment>
+    <fragment
+        android:id="@+id/nav_history_song"
+        android:name="com.czk.music.ui.home.my.MyHistorySongFragment"
+        android:label="最近常听的歌曲"
+        tools:layout="@layout/fragment_my_history_song">
+    </fragment>
+    <fragment
+        android:id="@+id/nav_like_song"
+        android:name="com.czk.music.ui.home.my.MyLikeSongFragment"
+        android:label="我喜欢"
+        tools:layout="@layout/fragment_my_like_song">
+    </fragment>
+    <fragment
+        android:id="@+id/nav_theme"
+        android:name="com.czk.music.ui.theme.themeFragment"
+        android:label="@string/menu_theme"
+        tools:layout="@layout/fragment_theme">
+    </fragment>
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="com.czk.music.ui.search.SearchFragment"
+        android:label="搜索歌曲"
+        tools:layout="@layout/fragment_search">
+    </fragment>
+    <action android:id="@+id/action_global_nav_search" app:destination="@id/nav_search"/>
+</navigation>

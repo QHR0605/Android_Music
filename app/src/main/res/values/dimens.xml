@@ -1,0 +1,25 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="appbar_padding">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
+
+    <!--字体大小-->
+    <dimen name="big_font">18sp</dimen>
+    <dimen name="normal_font">16sp</dimen>
+    <dimen name="small_font">12sp</dimen>
+    <!--图片大小-->
+    <dimen name="big_image">384dp</dimen>
+    <dimen name="normal_image">128dp</dimen>
+    <dimen name="small_image">64dp</dimen>
+    <dimen name="super_small_image">32dp</dimen>
+
+    <dimen name="my_padding">10dp</dimen>
+
+    <dimen name="music_toolbar_height">32dp</dimen>
+    <dimen name="music_play_height">64dp</dimen>
+</resources>

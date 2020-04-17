@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <include layout="@layout/item_recycler_song" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_song_more_recycle_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/search_song_more"
+        android:paddingLeft="@dimen/my_padding"
+        android:drawableRight="@drawable/ic_arrow_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorGray"
+        android:text="@string/search_song_more"
+        android:visibility="gone"
+        android:layout_marginBottom="10dp"/>
+</LinearLayout>

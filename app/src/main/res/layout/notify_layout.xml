@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!--zk音乐的通知布局-->
+    <ImageView
+        android:id="@+id/notify_img"
+        android:layout_width="@dimen/normal_image"
+        android:layout_height="@dimen/normal_image"
+        android:background="@drawable/loading_spinner"/>
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/my_padding"
+            android:layout_marginLeft="@dimen/my_padding">
+            <TextView
+                android:id="@+id/notify_song_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.Compat.Notification.Title"
+                android:textSize="@dimen/big_font"
+                android:text="歌名"/>
+            <TextView
+                android:id="@+id/notify_singer_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:textSize="@dimen/normal_font"
+                android:text="歌手名"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center_vertical"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="@dimen/my_padding">
+            <ImageView
+                android:id="@+id/notify_last_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+
+                android:background="@drawable/ic_gray_last"/>
+            <ImageView
+                android:id="@+id/notify_play_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/ic_gray_play"/>
+            <ImageView
+                android:id="@+id/notify_next_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/ic_gray_next"/>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

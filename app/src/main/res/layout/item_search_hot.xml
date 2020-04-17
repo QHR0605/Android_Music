@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/search_text_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/text_border"
+    android:text="搜索热词"
+    android:textColor="@color/colorWhite"
+    android:maxLines="1"
+    android:ellipsize="end"
+    android:layout_marginRight="20dp"
+    android:layout_marginBottom="20dp"
+    android:padding="10dp">
+</TextView>

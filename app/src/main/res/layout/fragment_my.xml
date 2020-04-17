@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <!--轮播图:目前是静态的-->
+        <com.czk.music.component.MyViewFlipper
+            android:id="@+id/my_view_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:padding="@dimen/my_padding" />
+        <!--轮播图的点-->
+        <LinearLayout
+            android:layout_marginTop="-25dp"
+            android:id="@+id/dot_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"/>
+        <!--我的音乐等操作图标-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/my_padding"/>
+        <!--我的歌单-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的歌单"
+                android:textSize="@dimen/big_font"
+                android:textColor="@color/colorBlack"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:textSize="@dimen/big_font"
+                android:text="|"
+                android:textColor="@color/colorGray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/big_font"
+                android:text="收藏歌单"
+                android:textColor="@color/colorGray"/>
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_my_playlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+        <!--<ImageView
+            android:id="@+id/my_test"
+            android:layout_width="200dp"
+            android:layout_height="200dp"/>-->
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
