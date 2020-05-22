@@ -15,7 +15,7 @@ import java.util.List;
 public class HomeFragmentPagerAdapter extends FragmentPagerAdapter{
 
     private List<Fragment> mFragments;
-    private String[] titles={"我的","音乐馆","发现"};
+    private String[] titles={"我的","音乐馆","排行榜"};
     public HomeFragmentPagerAdapter(@NonNull FragmentManager fm, List<Fragment> mFragments) {
         super(fm);
         this.mFragments = mFragments;

@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -27,8 +26,9 @@ import androidx.navigation.ui.NavigationUI;
 import com.czk.music.base.BaseActivity;
 import com.czk.music.bean.MusicContext;
 import com.czk.music.bean.Song;
+import com.czk.music.service.DownLoadService;
 import com.czk.music.service.MusicService;
-import com.czk.music.ui.bottom.MusicBottomFragment;
+import com.czk.music.util.MusicUtil;
 import com.google.android.material.navigation.NavigationView;
 
 import org.litepal.LitePal;
@@ -36,10 +36,34 @@ import org.litepal.LitePal;
 import java.util.List;
 
 public class MainActivity extends BaseActivity {
+    private final String tag = "MainActivity";
     private Context mContext;
     private AppBarConfiguration mAppBarConfiguration;
-    private MusicService.MusicBind musicBinder;//播放音乐服务的binder
+    private NavController mNavController;
+
     private Intent mIntent;//用于服务的intent
+    private Intent mIntentDownload;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicUtil.musicBind = (MusicService.MusicBind) service;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            MusicUtil.musicBind = null;
+        }
+    };
+    private ServiceConnection connectionDownload = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicUtil.downLoadBinder = (DownLoadService.DownLoadBinder) service ;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            MusicUtil.downLoadBinder = null;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +71,8 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         init();
         initService();
+
     }
-
-
     private void init() {
         mContext = this;
         //设置toolbar
@@ -63,11 +86,11 @@ public class MainActivity extends BaseActivity {
                 R.id.nav_home)
                 .setDrawerLayout(drawer)
                 .build();
-        final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, mNavController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, mNavController);
         //导航点击事件
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+        mNavController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller,
                                              @NonNull NavDestination destination, @Nullable Bundle arguments) {
@@ -96,7 +119,7 @@ public class MainActivity extends BaseActivity {
                         break;*/
                     case R.id.action_search:
                         getSupportActionBar().hide();
-                        navController.navigate(R.id.action_global_nav_search);
+                        mNavController.navigate(R.id.action_global_nav_search);
                         break;
                     default:
                         break;
@@ -106,41 +129,66 @@ public class MainActivity extends BaseActivity {
         });
     }
     private void initService() {
+        //音乐播放服务
         mIntent = new Intent(this, MusicService.class);
         startService(mIntent);
         bindService(mIntent,connection,Context.BIND_AUTO_CREATE);
+        //音乐下载服务
+        mIntentDownload = new Intent(this, DownLoadService.class);
+        startService(mIntentDownload);
+        bindService(mIntentDownload,connectionDownload,Context.BIND_AUTO_CREATE);
     }
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            musicBinder = (MusicService.MusicBind) service;
-            //将muscibinder传递给fragment
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            MusicBottomFragment fragment = (MusicBottomFragment) fragmentManager.findFragmentById(R.id.fragment_music_bottom);
-            fragment.setBind(musicBinder);
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBinder = null;
-        }
-    };
-    public MusicService.MusicBind getMusicBinder(){
-        return musicBinder;
-    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //保存退出时音乐上下文
+        //saveMusicContext();
+        //销毁服务
 
+        unbindService(connection);
+        stopService(mIntent);
+        unbindService(connectionDownload);
+        stopService(mIntentDownload);
+    }
+    private void saveMusicContext(){
+        //保存音乐上下文，用于打开应用恢复 音乐关闭时的状态
+        int i=0;//只保存100首
+        LitePal.deleteAll(MusicContext.class);
+        MusicContext musicContext = new MusicContext();
+        List<Song> songs = MusicUtil.musicBind.getSongs();
+        for (Song item:songs) {
+            item.setMusicContext(musicContext);
+            item.setLike(0);
+            item.setHistory(0);
+            item.clearSavedState();//清除对象的保存状态
+            item.save();
+            if(i>=99){
+                break;
+            }
+            i++;
+        }
+        musicContext.setCurrentIndex(MusicUtil.musicBind.getCurrentIndex());
+        musicContext.setImageUrl(MusicUtil.musicBind.getImageUrl());
+        musicContext.setSongUrl(MusicUtil.musicBind.getSongUrl());
+        musicContext.setSongLyric(MusicUtil.musicBind.getSongLyric());
+        musicContext.setTimeLyric(MusicUtil.musicBind.getTimeLyric());
+        musicContext.setDuration(MusicUtil.musicBind.getDuration());
+        musicContext.setCurrentTime(MusicUtil.musicBind.getCurrentTime());
+        musicContext.save();
+    }
     public void changeTheme(View view){
         Button button = (Button) view;
         String text = (String) button.getText();
@@ -164,42 +212,5 @@ public class MainActivity extends BaseActivity {
         this.startActivity(intent);
         android.os.Process.killProcess(android.os.Process.myPid());*/
 
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //保存退出时音乐上下文
-        saveMusicContext();
-        //销毁服务
-        unbindService(connection);
-        stopService(mIntent);
-
-    }
-    private void saveMusicContext(){
-        //保存音乐上下文，用于打开应用恢复 音乐关闭时的状态
-        int i=0;//只保存100首
-        LitePal.deleteAll(MusicContext.class);
-        MusicContext musicContext = new MusicContext();
-        List<Song> songs = musicBinder.getSongs();
-        for (Song item:songs) {
-            item.setMusicContext(musicContext);
-            item.setLike(0);
-            item.setHistory(0);
-            item.clearSavedState();//清除对象的保存状态
-            item.save();
-            if(i>=99){
-                break;
-            }
-            i++;
-        }
-        musicContext.setCurrentIndex(musicBinder.getCurrentIndex());
-        musicContext.setImageUrl(musicBinder.getImageUrl());
-        musicContext.setSongUrl(musicBinder.getSongUrl());
-        musicContext.setSongLyric(musicBinder.getSongLyric());
-        musicContext.setTimeLyric(musicBinder.getTimeLyric());
-        musicContext.setDuration(musicBinder.getDuration());
-        musicContext.setCurrentTime(musicBinder.getCurrentTime());
-        musicContext.save();
     }
 }

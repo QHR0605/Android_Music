@@ -45,6 +45,22 @@ public class HttpUtil {
                 .build();
         client.newCall(request).enqueue(callback);
     }
+    public static void sendUQQRequestGet(final String address, okhttp3.Callback callback,Map<String,String> map) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(address).newBuilder();
+        if (map!=null) {
+            for (Map.Entry<String,String> entry:map.entrySet()) {
+                urlBuilder.addQueryParameter(entry.getKey(),entry.getValue());
+            }
+        }
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .addHeader("referer","https://u.y.qq.com/")
+                .addHeader("host","u.y.qq.com")
+                .addHeader("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36")
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
     //出错处理
     public static void failed(Context context,String text){
         Looper.prepare();

@@ -32,7 +32,6 @@ import com.czk.music.bean.SearchKey;
 import com.czk.music.bean.Song;
 import com.czk.music.interfaces.IonItemClick;
 import com.czk.music.util.HttpUtil;
-import com.czk.music.service.MusicService;
 import com.czk.music.util.JsonUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +69,6 @@ public class SearchFragment extends Fragment {
     private HistorySearchAdapter adapter;//历史记录的适配器
     private RecyclerView historyView ;//存放历史记录的recycleview
 
-    private MusicService.MusicBind musicBinder;
-
     private final int UPDATE_HOTKEY = 1;
     private final int UPDATE_SONGS = 2;
     private final int REFRESH_SONGS = 3;
@@ -98,13 +95,6 @@ public class SearchFragment extends Fragment {
                     linearLayoutManager = new LinearLayoutManager(mContext);
                     recyclerView.setLayoutManager(linearLayoutManager);
                     SearchSongAdapter= new SearchSongListAdapter(mContext,mSongs);
-                    SearchSongAdapter.setIonItemClick(new IonItemClick() {
-                        @Override
-                        public void onClick(int position) {
-                            Song song =mSongs.get(position);
-                            musicBinder.songItemClick(position,song,mSongs);
-                        }
-                    });
                     recyclerView.setAdapter(SearchSongAdapter);
                     break;
                 //上拉加载更多歌曲
@@ -125,7 +115,6 @@ public class SearchFragment extends Fragment {
         mContext = getContext();
         view = inflater.inflate(R.layout.fragment_search,container,false);
         initView();
-        initBind();
         initEvent();
         return view;
     }
@@ -138,11 +127,6 @@ public class SearchFragment extends Fragment {
         refreshLayout = view.findViewById(R.id.search_refresh);
         initHotKey();
         initHistoryKey();
-    }
-    //从activity获取musicBinder
-    private void initBind(){
-        MainActivity mainActivity = (MainActivity) getActivity();
-        musicBinder = mainActivity.getMusicBinder();
     }
     private void initEvent() {
         //点击返回

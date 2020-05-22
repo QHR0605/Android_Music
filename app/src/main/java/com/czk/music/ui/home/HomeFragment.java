@@ -11,8 +11,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.czk.music.R;
 import com.czk.music.adapter.HomeFragmentPagerAdapter;
+import com.czk.music.ui.home.find.FindFragment;
+import com.czk.music.ui.home.musichall.MusicHallFragment;
 import com.czk.music.ui.home.my.MyFragment;
-import com.czk.music.ui.theme.themeFragment;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class HomeFragment extends Fragment {
         ViewPager viewPager = view.findViewById(R.id.main_view_pager);
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new MyFragment());
-        fragments.add(new FindFragment());
+        fragments.add(new MusicHallFragment());
         fragments.add(new FindFragment());
         viewPager.setAdapter(new HomeFragmentPagerAdapter(getChildFragmentManager(),fragments));
         //将tabLayout与viewPager关联，为tabLayout自动填充标题

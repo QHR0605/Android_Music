@@ -47,8 +47,10 @@ public class MyOptionAdapter extends RecyclerView.Adapter<MyOptionAdapter.ViewHo
             public void onClick(View v) {
                 switch (position){
                     case 0:
+                        Navigation.findNavController(v).navigate(R.id.action_nav_home_to_nav_local_song);
                         break;
                     case 1:
+                        Navigation.findNavController(v).navigate(R.id.action_nav_home_to_nav_download_song);
                         break;
                     case 2:
                         Navigation.findNavController(v).navigate(R.id.action_nav_home_to_nav_history_song);

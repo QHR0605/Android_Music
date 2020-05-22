@@ -1,10 +1,11 @@
 package com.czk.music.util;
 
-import android.os.Message;
 import android.util.Log;
 
 import com.czk.music.bean.PlayListSimple;
 import com.czk.music.bean.Song;
+import com.czk.music.bean.TopList;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,7 +83,8 @@ public class JsonUtil {
         String vkey="";
         try {
             JSONObject jsonObject = new JSONObject(str);
-            vkey = jsonObject.getJSONObject("data").getJSONArray("items").getJSONObject(0).getString("vkey");
+            //vkey = jsonObject.getJSONObject("data").getJSONArray("items").getJSONObject(0).getString("vkey");
+            vkey = jsonObject.getJSONObject("req_0").getJSONObject("data").getJSONArray("midurlinfo").getJSONObject(0).getString("purl");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -172,6 +174,96 @@ public class JsonUtil {
                 JSONObject album = jsonObject.getJSONObject("album");
                 song.setAlbum(album.getString("name"));
                 song.setAlbumMid(album.getString("mid"));
+                list.add(song);
+            }
+        }catch(JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    //获取排行榜列表
+    public static List<TopList> getToplist(Response response){
+        List<TopList> list = new ArrayList<>();
+        //得到服务器返回的具体内容
+        try {
+            String responseData = response.body().string();
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONArray jsonArray = jsonObject.getJSONObject("data").getJSONArray("topList");
+            for(int i=0;i<jsonArray.length();i++){
+                Gson gson = new Gson();
+                TopList topList = gson.fromJson(String.valueOf(jsonArray.getJSONObject(i)), TopList.class);
+                list.add(topList);
+            }
+
+        }catch(JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    //获取排行榜详情的歌曲
+    public static List<Song> getTopSong(Response response){
+        List<Song> list = new ArrayList<>();
+        //得到服务器返回的具体内容
+        try {
+            String responseData = response.body().string();
+            Log.d("tagaa0",responseData);
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONArray jsonArray = jsonObject.getJSONArray("songlist");
+            for (int i=0;i<jsonArray.length();i++) {
+                Song song = new Song();
+                jsonObject = jsonArray.getJSONObject(i).getJSONObject("data");
+                song.setId(jsonObject.getString("songid"));
+                song.setName(jsonObject.getString("songname"));
+                song.setMid(jsonObject.getString("songmid"));
+                JSONArray singers = jsonObject.getJSONArray("singer");
+                String singerName = "";
+                for(int j=0;j<singers.length();j++){
+                    if(j==singers.length()-1){
+                        singerName+=singers.getJSONObject(j).getString("name");
+                    }
+                    else {
+                        singerName=singerName+singers.getJSONObject(j).getString("name")+"&";
+                    }
+                }
+                song.setSinger(singerName);
+                song.setAlbum(jsonObject.getString("albumname"));
+                song.setAlbumMid(jsonObject.getString("albummid"));
+                list.add(song);
+            }
+        }catch(JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    //个人推荐歌曲
+    public static List<Song> getRecommendSong(Response response){
+        List<Song> list = new ArrayList<>();
+        //得到服务器返回的具体内容
+        try {
+            String responseData = response.body().string();
+            Log.d("tagaa0",responseData);
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONArray jsonArray = jsonObject.getJSONArray("songlist");
+            for (int i=0;i<jsonArray.length();i++) {
+                Song song = new Song();
+                jsonObject = jsonArray.getJSONObject(i).getJSONObject("data");
+                song.setId(jsonObject.getString("songid"));
+                song.setName(jsonObject.getString("songname"));
+                song.setMid(jsonObject.getString("songmid"));
+                JSONArray singers = jsonObject.getJSONArray("singer");
+                String singerName = "";
+                for(int j=0;j<singers.length();j++){
+                    if(j==singers.length()-1){
+                        singerName+=singers.getJSONObject(j).getString("name");
+                    }
+                    else {
+                        singerName=singerName+singers.getJSONObject(j).getString("name")+"&";
+                    }
+                }
+                song.setSinger(singerName);
+                song.setAlbum(jsonObject.getString("albumname"));
+                song.setAlbumMid(jsonObject.getString("albummid"));
                 list.add(song);
             }
         }catch(JSONException | IOException e) {

@@ -6,7 +6,7 @@
     <color name="colorMy">#12B8C6</color>
     <color name="colorBlack">#000000</color>
     <color name="colorWhite">#FFFFFF</color>
-    <color name="colorWhiteSmall">#dddddd</color>
+    <color name="colorWhiteSmall">#f4f4f4</color>
     <color name="colorGreen">#2fc379</color>
     <color name="colorGray">#707070</color>
     <color name="colorGrayDeep">#404040</color>

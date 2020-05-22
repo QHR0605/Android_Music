@@ -1,25 +1,16 @@
 package com.czk.music.service;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
-import android.widget.RemoteViews;
 
 import androidx.collection.ArrayMap;
-import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.czk.music.R;
-import com.czk.music.bean.MusicContext;
 import com.czk.music.bean.Song;
 import com.czk.music.interfaces.IMusic;
 import com.czk.music.util.HttpUtil;
@@ -36,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Response;
@@ -64,10 +56,11 @@ public class MusicService extends Service{
         private List<Float> timeLyric;                           //歌词对应的时间
         private int duration;                                     //歌曲总时长
         private int currentTime;                                  //当前播放的时间
-
+        private int guid;
+        private List<Song> historySong = new ArrayList<>();
         public MusicBind() {
             //从数据库读取muscibind,恢复音乐上下文
-            MusicContext musicContext = LitePal.findFirst(MusicContext.class,true);
+            /*MusicContext musicContext = LitePal.findFirst(MusicContext.class,true);
             if(musicContext!=null){
                 songs = musicContext.getSongs();
                 currentIndex = musicContext.getCurrentIndex();
@@ -81,14 +74,13 @@ public class MusicService extends Service{
                 duration = musicContext.getDuration();
                 currentTime = musicContext.getCurrentTime();
             }
-
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(songUrl);
                 mediaPlayer.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
@@ -98,6 +90,8 @@ public class MusicService extends Service{
                     }
                 }
             });
+
+
         }
 
         @Override
@@ -139,22 +133,31 @@ public class MusicService extends Service{
         }
         @Override
         public void changeSong(Song song,String vkey) {
-            //歌曲播放地址
-            setSongUrl("http://ws.stream.qqmusic.qq.com/"+"C400"+song.getMid()+".m4a?"+"fromtag=0&guid=1023110828&vkey="+vkey);
+            //如果是本地歌曲
+            if(song.getDownload()==1){
+                song.setDownloadUrl(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath()
+                        +"/"+song.getName()+"-"+song.getSinger()+".m4a");
+                setSongUrl(song.getDownloadUrl());
+            }else{
+                //setSongUrl("http://ws.stream.qqmusic.qq.com/"+"C400"+song.getMid()+".m4a?"+"fromtag=0&guid=1023110828&vkey="+vkey);
+                setSongUrl("http://ws.stream.qqmusic.qq.com/"+vkey);
+                //Log.d(Tag,songUrl);
+            }
+            //Log.d(Tag,songUrl+song.getDownload());
             //歌曲图片地址
             setImageUrl("https://y.gtimg.cn/music/photo_new/T002R300x300M000"+song.getAlbumMid()+".jpg?max_age=2592000");
             setSong(song);
             initLyric();
             try {
                 mediaPlayer.reset();
+                //Log.d(Tag,songUrl+"-------------");
                 mediaPlayer.setDataSource(songUrl);
                 mediaPlayer.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //设置歌曲时长
+
             setDuration(mediaPlayer.getDuration()/1000);
-            //Log.d("music",String.valueOf(getDuration()));
             //发送广播，通知底部音乐栏更新
             Intent intent = new Intent("com.czk.music.broadcast.SongChangeReceiver");
             intent.putExtra("state", StateUtil.CHANGE_SONG);
@@ -166,15 +169,10 @@ public class MusicService extends Service{
         public void nextSong() {
             currentIndex = currentIndex+1>=songs.size()?0:currentIndex+1;
             song = songs.get(currentIndex);
-            final String url = "https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg";
-            Map<String,String> map = new ArrayMap<>();
-            map.put("filename","C400"+song.getMid()+".m4a");
-            map.put("songmid",song.getMid());
-            map.put("guid","1023110828");
-            map.put("cid","205361747");
-            map.put("platform","yqq");
-            map.put("format","json205361747");
-            HttpUtil.sendQQRequestGet(url,new okhttp3.Callback() {
+            final String url = "https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22" +
+                    song.getMid() +
+                    "%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
+            HttpUtil.sendUQQRequestGet(url,new okhttp3.Callback() {
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                     String vkey = JsonUtil.getSongToken(response);
@@ -188,22 +186,17 @@ public class MusicService extends Service{
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     HttpUtil.failed(MusicService.this,"网络请求失败");
                 }
-            },map);
+            },null);
         }
 
         @Override
         public void lastSong() {
             currentIndex = currentIndex-1<0?songs.size()-1:currentIndex-1;
             song = songs.get(currentIndex);
-            final String url = "https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg";
-            Map<String,String> map = new ArrayMap<>();
-            map.put("filename","C400"+song.getMid()+".m4a");
-            map.put("songmid",song.getMid());
-            map.put("guid","1023110828");
-            map.put("cid","205361747");
-            map.put("platform","yqq");
-            map.put("format","json205361747");
-            HttpUtil.sendQQRequestGet(url,new okhttp3.Callback() {
+            final String url = "https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22" +
+                    song.getMid() +
+                    "%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
+            HttpUtil.sendUQQRequestGet(url,new okhttp3.Callback() {
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                     String vkey = JsonUtil.getSongToken(response);
@@ -217,7 +210,7 @@ public class MusicService extends Service{
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     HttpUtil.failed(MusicService.this,"网络请求失败");
                 }
-            },map);
+            },null);
         }
 
         @Override
@@ -227,17 +220,27 @@ public class MusicService extends Service{
         }
 
         public void songItemClick(final int index, final Song song, final List<Song> songs){
+            //本地歌曲点击
+            if(song.getLocal()==1){
+                setSongs(songs);
+                setCurrentIndex(index);
+                changeSong(song,null);
+                return;
+            }
             //如果当前点击歌曲不一致
             if(!song.getId().equals(getSong().getId())){
-                final String url = "https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg";
-                Map<String,String> map = new ArrayMap<>();
+                //final String url = "https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg";
+                final String url = "https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22" +
+                        song.getMid() +
+                        "%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D";
+               /* Map<String,String> map = new ArrayMap<>();
                 map.put("filename","C400"+song.getMid()+".m4a");
                 map.put("songmid",song.getMid());
                 map.put("guid","1023110828");
                 map.put("cid","205361747");
                 map.put("platform","yqq");
-                map.put("format","json205361747");
-                HttpUtil.sendQQRequestGet(url,new okhttp3.Callback() {
+                map.put("format","json205361747");*/
+                HttpUtil.sendUQQRequestGet(url,new okhttp3.Callback() {
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         String vkey = JsonUtil.getSongToken(response);
@@ -253,7 +256,7 @@ public class MusicService extends Service{
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         HttpUtil.failed(MusicService.this,"网络请求失败");
                     }
-                },map);
+                },null);
 
             }
 
@@ -274,31 +277,35 @@ public class MusicService extends Service{
                 public void onResponse(@NotNull Call call, @NotNull Response response){
                     try {
                         String data = response.body().string();
-                        //Log.d("tag",data);
+                        //匹配时间的正则表达式[00:00.00
+                        String reg = "^\\[\\d{2}:\\d{2}(\\.||:)\\d{2}";
                         JSONObject jsonObject = new JSONObject(data);
                         String lyric = jsonObject.getString("lyric");
                         if(lyric!=null){
                             String[] lyrics = lyric.split("\n");
+                            //Log.d(Tag,lyric);
                             for (String item:lyrics) {
-                                //Log.d("tag",item);
-                                //处理歌词
-                                if(item.split("]").length>1){
-                                    String lrc = item.split("]")[1];
-                                    songLyric.add(lrc);
-                                    //Log.d("lry",lrc);
-                                }else {
-                                    continue;
-                                }
+                                String[] strs = item.split("]");
                                 //处理时间，使之变成浮动数
-                                String[] time = item.split("]")[0].substring(1).split(":");
-                                if(time==null){
+                                String[] time = strs[0].substring(1).split(":");
+                                if(time==null||!Pattern.matches(reg,strs[0])){
+                                    //Log.d(Tag,strs[0]);
                                     continue;
                                 }
-                                //Log.d("time",time[0]);
                                 int min =Integer.parseInt(time[0])*60;//时间 分
                                 float sec = Float.parseFloat(time[1]);//时间 秒
                                 float timeSec = Float.valueOf(min+sec);//总时间保留2位小数
-                                timeLyric.add(timeSec);
+
+                                //处理歌词
+                                if(strs.length>1){
+                                    String lrc = strs[1];
+                                    songLyric.add(lrc);
+                                    timeLyric.add(timeSec);
+                                    //Log.d("lry", lrc);
+                                }else {
+                                    continue;
+                                }
+
                             }
                         }
 
@@ -342,83 +349,65 @@ public class MusicService extends Service{
                 return "";
             }
         }
+
+
         public Song getSong() {
             return song;
         }
-
         public void setSong(Song song) {
             this.song = song;
         }
-
         public List<Song> getSongs() {
             return songs;
         }
-
         public void setSongs(List<Song> songs) {
             this.songs = songs;
         }
-
-
         public int getCurrentIndex() {
             return currentIndex;
         }
-
         public void setCurrentIndex(int currentIndex) {
             this.currentIndex = currentIndex;
         }
-
         public String getImageUrl() {
             return imageUrl;
         }
-
         public void setImageUrl(String imageUrl) {
             this.imageUrl = imageUrl;
         }
-
         public String getSongUrl() {
             return songUrl;
         }
-
         public void setSongUrl(String songUrl) {
             this.songUrl = songUrl;
         }
-
         public boolean isIsplay() {
             return isplay;
         }
-
         public void setIsplay(boolean isplay) {
             this.isplay = isplay;
         }
-
         public List<String> getSongLyric() {
             return songLyric;
         }
-
         public void setSongLyric(List<String> songLyric) {
             this.songLyric = songLyric;
         }
-
         public List<Float> getTimeLyric() {
             return timeLyric;
         }
-
         public void setTimeLyric(List<Float> timeLyric) {
             this.timeLyric = timeLyric;
         }
-
         public int getDuration() {
             return duration;
         }
-
         public void setDuration(int duration) {
             this.duration = duration;
         }
-
         public int getCurrentTime() {
             return currentTime;
         }
-
         public void setCurrentTime(int currentTime) {
             this.currentTime = currentTime;
         }
@@ -426,39 +415,42 @@ public class MusicService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        /*NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationChannel channel = null;
         //创建通道id
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channel = new NotificationChannel("channelId", "my_channel", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.enableLights(true); //是否在桌面icon右上角展示小红点
+            channel = new NotificationChannel("MusicService", "MusicService", NotificationManager.IMPORTANCE_DEFAULT);
+           *//* channel.enableLights(true); //是否在桌面icon右上角展示小红点
             channel.setLightColor(Color.GREEN); //小红点颜色
-            channel.setShowBadge(true); //是否在久按桌面图标时显示此渠道的通知
+            channel.setShowBadge(true); //是否在久按桌面图标时显示此渠道的通知*//*
             manager.createNotificationChannel(channel);
+        }else {
+            return;
         }
         //通知布局如果使用自定义布局文件中的话要通过RemoteViews类来实现，
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notify_layout);
+        //RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notify_layout);
 
         //重点
         Intent intent = new Intent(this,MusicService.class);
         PendingIntent pi = PendingIntent.getActivity(this,0,intent,0);
-        Notification notification = new NotificationCompat.Builder(this,"channelId")
+        Notification notification = new NotificationCompat.Builder(this,"MusicService")
                 .setContentTitle("这是一条很重要的通知")
                 .setContentText("其实我就不叫嘤嘤嘤，我是嘤嘤怪")
                 .setSmallIcon(R.drawable.app_img)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.loading_spinner))
                 .setContentIntent(pi)
+                .setAutoCancel(true)
                 .build();
         startForeground(1,notification);
-       /* .setContent(remoteViews)
-                .setCustomBigContentView(remoteViews)*/
+       *//* .setContent(remoteViews)
+                .setCustomBigContentView(remoteViews)*//*
         //对于自定义布局文件中的控件通过RemoteViews类的对象进行事件处理
-        /*remoteViews.setOnClickPendingIntent(R.id.notificationButton1, button1PI);
-        remoteViews.setOnClickPendingIntent(R.id.notificatinoButton2, button2PI);*/
-        /*Intent intentClick = new Intent("NOTIFY_CLICK");
+        *//*remoteViews.setOnClickPendingIntent(R.id.notificationButton1, button1PI);
+        remoteViews.setOnClickPendingIntent(R.id.notificatinoButton2, button2PI);*//*
+        *//*Intent intentClick = new Intent("NOTIFY_CLICK");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,intent,0);
-        remoteViews.setOnClickPendingIntent(R.id.notify_last_song,pendingIntent);*/
-
+        remoteViews.setOnClickPendingIntent(R.id.notify_last_song,pendingIntent);*//*
+*/
     }
     @Override
     public IBinder onBind(Intent intent) {

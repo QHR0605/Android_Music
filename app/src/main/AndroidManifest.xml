@@ -5,6 +5,8 @@
     <!-- 网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 使用前台服务权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".util.ApplicationUtil"
@@ -14,7 +16,9 @@
         android:roundIcon="@drawable/app_img"
         android:supportsRtl="true"
         android:theme="@style/MyTheme"
-        android:usesCleartextTraffic="true">
+        android:launchMode="singleTask"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true">
         <service
             android:name=".service.DownLoadService"
             android:enabled="true"

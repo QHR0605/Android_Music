@@ -23,8 +23,8 @@ import com.bumptech.glide.Glide;
 import com.czk.music.R;
 import com.czk.music.broadcast.SongChangeReceiver;
 import com.czk.music.interfaces.IMusicView;
-import com.czk.music.service.MusicService;
 import com.czk.music.util.ApplicationUtil;
+import com.czk.music.util.MusicUtil;
 import com.czk.music.util.StateUtil;
 
 
@@ -34,6 +34,7 @@ import com.czk.music.util.StateUtil;
  * Describe:音乐底部
  */
 public class MusicBottomFragment extends Fragment {
+    private String Tag = "MusicBottomFragment";
     private Context mContext;
     private View view;
 
@@ -47,9 +48,7 @@ public class MusicBottomFragment extends Fragment {
     private LocalBroadcastManager localBroadcastManager;//本地广播管理器
     private SongChangeReceiver songChangeReceiver;//接受歌曲改变的广播
 
-    private MusicService.MusicBind musicBinder;//播放音乐服务的binder
 
-    //private LyricThread mLyricThread;//更新歌词的线程
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -86,7 +85,7 @@ public class MusicBottomFragment extends Fragment {
         playMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(musicBinder.isIsplay()){
+            if(MusicUtil.musicBind.isIsplay()){
                 mIMusicView.musicStateChange(StateUtil.PAUSE_SONG);
             }else{
                 mIMusicView.musicStateChange(StateUtil.PLAY_SONG);
@@ -98,43 +97,35 @@ public class MusicBottomFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, PlayMusicActivity.class);
-                intent.putExtra("musicBinder", musicBinder);
+                intent.putExtra("BinderUtil.musicBind", MusicUtil.musicBind);
                 startActivity(intent);
             }
         });
-    }
-    //从activity获取musicBinder
-    public void setBind(MusicService.MusicBind musicBind){
-        this.musicBinder = musicBind;
-        if (musicBind.getSongs().size() > 0) {
-            mIMusicView.songChange();
-        }
-
     }
     private IMusicView mIMusicView = new IMusicView() {
         @Override
         public void songChange() {
             //设置图片
             Glide.with(mContext)
-                    .load(Uri.parse(musicBinder.getImageUrl()))
+                    .load(Uri.parse(MusicUtil.musicBind.getImageUrl()))
                     .centerCrop()
                     .placeholder(R.drawable.loading_spinner)
                     .error(R.drawable.loading_error)
                     .into(songImg);
             //设置歌名
-            mSongName.setText(musicBinder.getSong().getName());
+            mSongName.setText(MusicUtil.musicBind.getSong().getName());
         }
 
         @Override
         public void musicStateChange(int state) {
             switch (state){
                 case StateUtil.CHANGE_SONG:
-                    if(musicBinder.isIsplay()){
-                        musicBinder.play();
+                    if(MusicUtil.musicBind.isIsplay()){
+                        MusicUtil.musicBind.play();
                         songImg.clearAnimation();
                         startAnimation();
                     }else {
-                        musicBinder.play();
+                        MusicUtil.musicBind.play();
                         songImg.clearAnimation();
                         startAnimation();
                         mPlayView.setBackgroundResource(R.drawable.ic_pause);
@@ -142,19 +133,19 @@ public class MusicBottomFragment extends Fragment {
                     }
                     break;
                 case StateUtil.PLAY_SONG:
-                    if ("".equals(musicBinder.getSongUrl())) {
+                    if ("".equals(MusicUtil.musicBind.getSongUrl())) {
                         Toast.makeText(mContext, "当前没有要播放的歌曲哦~~", Toast.LENGTH_SHORT).show();
                     } else {
                         mPlayView.setBackgroundResource(R.drawable.ic_pause);
                         startAnimation(); //开启动画
-                        musicBinder.play();
+                        MusicUtil.musicBind.play();
                         //用于更新歌词的线程
                         new LyricThread().start();
                     }
                     break;
                 case StateUtil.PAUSE_SONG:
                     mPlayView.setBackgroundResource(R.drawable.ic_play);
-                    musicBinder.pause();
+                    MusicUtil.musicBind.pause();
                     pauseAnimation();//暂停动画
                     break;
             }
@@ -179,10 +170,10 @@ public class MusicBottomFragment extends Fragment {
         String lyric;
         @Override
         public void run() {
-            while (musicBinder.isIsplay()){
+            while (MusicUtil.musicBind.isIsplay()){
                 try {
                     Thread.sleep(200);
-                    lyric  = musicBinder.updateLyric();
+                    lyric  = MusicUtil.musicBind.updateLyric();
                     mLycView.setText(lyric);
                     //Log.d("thread",Thread.currentThread().getName());
                 } catch (InterruptedException e) {
@@ -197,6 +188,6 @@ public class MusicBottomFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         localBroadcastManager.unregisterReceiver(songChangeReceiver);
-        musicBinder.destroyMedia();
+        MusicUtil.musicBind.destroyMedia();
     }
 }

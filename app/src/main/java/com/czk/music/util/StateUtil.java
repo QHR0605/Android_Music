@@ -15,4 +15,5 @@ public class StateUtil {
     public static final int DOWNLOAD_FAILED = 5;
     public static final int DOWNLOAD_CANCEL = 6;
     public static final int DOWNLOAD_PAUSE = 7;
+
 }

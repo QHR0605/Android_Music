@@ -15,12 +15,7 @@
 
     <string name="menu_theme">主题设置</string>
     <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-
-    <string name="home_second">Home Second</string>
-    <string name="title_activity_test">TestActivity</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="menu_local_song">扫描本地歌曲</string>
 
     <!--搜索页面的string-->
     <string name="search_hint">搜索音乐、MV、歌单、用户</string>
@@ -30,9 +25,11 @@
     <string name="search_song_more">更多版本</string>
     <string name="search_song_more_back">收起更多版本</string>
 
+    <string name="scan_song_btn">扫描歌曲</string>
+    <string name="scan_song_text_view">一键扫描手机内的歌曲文件</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <!--播放音乐的string-->
 
 </resources>

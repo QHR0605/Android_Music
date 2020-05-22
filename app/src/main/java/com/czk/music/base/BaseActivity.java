@@ -3,6 +3,7 @@ package com.czk.music.base;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,28 +34,38 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void changeThemeByName(String name){
+        int ThemeColor;
         switch (name){
             case "清风绿":
-                setTheme(R.style.MyTheme);
+                ThemeColor = R.style.MyTheme;
                 break;
             case "宝石蓝":
-                setTheme(R.style.MyBlue);
+                ThemeColor = R.style.MyBlue;
                 break;
             case "荣耀黑":
-                setTheme(R.style.MyBlack);
+                ThemeColor = R.style.MyBlack;
                 break;
             case "嘤嘤粉":
-                setTheme(R.style.MyPink);
+                ThemeColor = R.style.MyPink;
                 break;
             case "玫瑰红":
-                setTheme(R.style.MyRed);
+                ThemeColor = R.style.MyRed;
                 break;
             case "黄非黄":
-                setTheme(R.style.MyYellow);
+                ThemeColor = R.style.MyYellow;
                 break;
             default:
-                setTheme(R.style.MyTheme);
+                ThemeColor = R.style.MyTheme;
                 break;
         }
+        setTheme(ThemeColor);
+
     }
+    /** 获取主题色 */
+    public int getColorPrimary() {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        return typedValue.data;
+    }
+
 }

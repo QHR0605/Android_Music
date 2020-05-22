@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.czk.music.component.MyViewFlipper
+            android:id="@+id/my_view_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:padding="@dimen/my_padding" />
+        <!--轮播图的点-->
+        <LinearLayout
+            android:layout_marginTop="-25dp"
+            android:id="@+id/dot_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="为你推荐歌单"
+            android:layout_marginTop="@dimen/my_padding"
+            android:textSize="@dimen/big_font"
+            android:textColor="@color/colorBlack"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:paddingLeft="@dimen/my_padding"
+            android:paddingRight="@dimen/my_padding"
+            android:id="@+id/recycler_music_playlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/music_hall_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:layout_gravity="center"
+            android:textColor="@color/colorWhite"
+            android:layout_margin="@dimen/my_padding"
+            android:text="换一换"/>
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>

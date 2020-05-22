@@ -22,7 +22,25 @@
         <action
             android:id="@+id/action_nav_home_to_nav_like_song"
             app:destination="@id/nav_like_song" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_download_song"
+            app:destination="@id/nav_download_song" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_scan_song"
+            app:destination="@id/nav_scan_song" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_local_song"
+            app:destination="@id/nav_local_song" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_blank_fragment"
+            app:destination="@id/nav_blank_fragment" />
 
+    </fragment>
+    <fragment
+        android:id="@+id/nav_local_song"
+        android:name="com.czk.music.ui.home.my.MyLocalSongFragment"
+        android:label="本地歌曲"
+        tools:layout="@layout/fragment_my_local_song">
     </fragment>
     <fragment
         android:id="@+id/nav_song_list"
@@ -37,22 +55,46 @@
         tools:layout="@layout/fragment_my_history_song">
     </fragment>
     <fragment
+        android:id="@+id/nav_download_song"
+        android:name="com.czk.music.ui.home.my.MyDownloadSong"
+        android:label="下载歌曲"
+        tools:layout="@layout/fragment_my_download_song">
+    </fragment>
+    <fragment
         android:id="@+id/nav_like_song"
         android:name="com.czk.music.ui.home.my.MyLikeSongFragment"
         android:label="我喜欢"
         tools:layout="@layout/fragment_my_like_song">
     </fragment>
+
+    <!--侧边栏的导航-->
     <fragment
         android:id="@+id/nav_theme"
         android:name="com.czk.music.ui.theme.themeFragment"
         android:label="@string/menu_theme"
-        tools:layout="@layout/fragment_theme">
+        tools:layout="@layout/fragment_menu_theme">
     </fragment>
+    <fragment
+        android:id="@+id/nav_scan_song"
+        android:name="com.czk.music.ui.scansong.ScanSongFragment"
+        android:label="@string/menu_local_song"
+        tools:layout="@layout/fragment_menu_scansong">
+    </fragment>
+
+    <!--音乐馆轮播图跳转fragment-->
+    <fragment
+        android:id="@+id/nav_blank_fragment"
+        android:name="com.czk.music.ui.home.musichall.BlankFragment"
+        android:label="ZK音乐"
+        tools:layout="@layout/fragment_blank">
+    </fragment>
+    <!--全局导航-->
     <fragment
         android:id="@+id/nav_search"
         android:name="com.czk.music.ui.search.SearchFragment"
         android:label="搜索歌曲"
         tools:layout="@layout/fragment_search">
     </fragment>
+
     <action android:id="@+id/action_global_nav_search" app:destination="@id/nav_search"/>
 </navigation>

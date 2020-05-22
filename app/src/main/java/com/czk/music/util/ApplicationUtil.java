@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ApplicationUtil extends Application {
     private static Context context;
+    //public static int ThemeColor = R.color.colorGreen;
     public static List<Activity> activities = new ArrayList<>();
     @Override
     public void onCreate() {

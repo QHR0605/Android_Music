@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.czk.music.R;
 import com.czk.music.bean.Song;
-import com.czk.music.interfaces.IonItemClick;
+import com.czk.music.util.MusicUtil;
 
 import java.util.List;
 
@@ -27,20 +27,16 @@ import java.util.List;
 public class SearchSongListAdapter extends RecyclerView.Adapter<SearchSongListAdapter.ViewHolder>{
     List<Song> list;
     private Context mContext;
-    Drawable top;
-    Drawable down;
+    Drawable top;//上箭头
+    Drawable down;//下箭头
 
-    private IonItemClick mIonItemClick;
-    public void setIonItemClick(IonItemClick ionItemClick){
-        this.mIonItemClick = ionItemClick;
-    }
 
     public SearchSongListAdapter(@NonNull Context context, List<Song>list) {
         this.mContext = context;
         this.list = list;
         top= mContext.getResources().getDrawable(R.drawable.ic_arrow_top);//上箭头
         down= mContext.getResources().getDrawable(R.drawable.ic_arrow_down);//下箭头
-    }
+        }
 
     @NonNull
     @Override
@@ -56,7 +52,7 @@ public class SearchSongListAdapter extends RecyclerView.Adapter<SearchSongListAd
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIonItemClick.onClick(position);
+                MusicUtil.musicBind.songItemClick(position,song,list);
             }
         });
         //如果该歌曲还有其他版本的话

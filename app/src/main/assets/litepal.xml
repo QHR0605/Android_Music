@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <litepal>
     <dbname value="ZKMusic"></dbname>
-    <version value="8"></version>
+    <version value="15"></version>
 
     <list>
         <mapping class="com.czk.music.bean.SearchKey"></mapping>
